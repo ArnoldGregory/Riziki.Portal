@@ -1,0 +1,80 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-building"></i> Settings <small>Company Profile</small></h1>
+
+<div class="panel panel-inverse">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="@Url.Action("Index","Dashboard")" class="btn btn-xs btn-icon btn-circle btn-danger" data-click="panel-remove"><i class="fa fa-times"></i></a>
+        </div>
+        <h4 class="panel-title">Company Information</h4>
+    </div>
+    <div class="panel-body">
+        <div id="co-loading" class="text-center p-20"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+        <div id="co-form" style="display:none;">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Company Name <span class="text-danger">*</span></label>
+                        <input id="co_name" type="text" class="form-control" placeholder="e.g. Acme Ltd" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Company Email</label>
+                        <input id="co_email" type="email" class="form-control" placeholder="info@company.co.ke" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input id="co_phone" type="text" class="form-control" placeholder="+254 700 000000" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input id="co_address" type="text" class="form-control" placeholder="P.O. Box 1234, Nairobi" />
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <h5><i class="fa fa-file-text-o"></i> Statutory Numbers</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>KRA PIN</label>
+                        <input id="co_kra" type="text" class="form-control" placeholder="P000000000X" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>NSSF Employer No.</label>
+                        <input id="co_nssf" type="text" class="form-control" placeholder="NSSF number" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>NHIF / SHA Employer No.</label>
+                        <input id="co_nhif" type="text" class="form-control" placeholder="NHIF/SHA number" />
+                    </div>
+                </div>
+            </div>
+            <div id="co-error" class="alert alert-danger" style="display:none;"></div>
+            <div class="row m-t-10">
+                <div class="col-md-12">
+                    <a href="#" class="btn btn-success btn-sm" id="btnSaveCompany"><i class="fa fa-save"></i> Save Changes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/assets/static/js/settings-company.js"></script>
+}

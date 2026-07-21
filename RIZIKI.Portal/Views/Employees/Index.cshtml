@@ -1,0 +1,479 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/DataTables/media/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/DataTables/extensions/Responsive/css/responsive.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/bootstrap-datepicker/css/bootstrap-datepicker.css" rel="stylesheet" />
+}
+
+<!-- begin page-header -->
+<h1 class="page-header"><i class="fa fa-users"></i> Employees <small>Register</small></h1>
+<!-- end page-header -->
+
+<div class="panel panel-inverse" id="main_panel">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="@Url.Action("Index", "Employees")" class="btn btn-xs btn-icon btn-circle btn-success"><i class="fa fa-repeat"></i></a>
+            <a href="@Url.Action("Index", "Dashboard")" class="btn btn-xs btn-icon btn-circle btn-danger" data-click="panel-remove"><i class="fa fa-times"></i></a>
+        </div>
+        <h4 class="panel-title">Employee Register</h4>
+    </div>
+    <div class="panel-body">
+
+        <div class="row m-b-10">
+            <div class="col-md-12">
+                <a href="#" class="btn btn-sm btn-success" data-toggle="modal" data-target="#add-employee-modal">
+                    <i class="fa fa-plus"></i> Add Employee
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table id="employeesTable" class="table table-striped table-hover table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>ID Number</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Job Title</th>
+                            <th>Department</th>
+                            <th>Type</th>
+                            <th>Hire Date</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── ADD EMPLOYEE MODAL ─────────────────────────────────────── -->
+        <div class="modal fade" id="add-employee-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+                        <h4 class="modal-title"><i class="fa fa-user-plus"></i> Add New Employee</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel panel-inverse">
+                            <div class="panel-body">
+
+                                <!-- Personal Info -->
+                                <h5 class="m-b-10"><strong>Personal Information</strong></h5>
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>First Name <span class="text-danger">*</span></label>
+                                            <input id="emp_first_name" type="text" class="form-control" placeholder="First name" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Middle Name</label>
+                                            <input id="emp_middle_name" type="text" class="form-control" placeholder="Middle name" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Last Name <span class="text-danger">*</span></label>
+                                            <input id="emp_last_name" type="text" class="form-control" placeholder="Last name" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>ID Number <span class="text-danger">*</span></label>
+                                            <input id="emp_id_number" type="text" class="form-control" placeholder="National ID / Passport" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Gender <span class="text-danger">*</span></label>
+                                            <select id="emp_gender" class="form-control">
+                                                <option value="">-- Select --</option>
+                                                <option value="MALE">Male</option>
+                                                <option value="FEMALE">Female</option>
+                                                <option value="OTHER">Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Date of Birth</label>
+                                            <div class="input-group date" id="dob_picker">
+                                                <input id="emp_dob" type="text" class="form-control" placeholder="DD-MM-YYYY" readonly />
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr />
+                                <!-- Contact -->
+                                <h5 class="m-b-10"><strong>Contact Details</strong></h5>
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Email <span class="text-danger">*</span></label>
+                                            <input id="emp_email" type="email" class="form-control" placeholder="email@company.com" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Mobile <span class="text-danger">*</span></label>
+                                            <input id="emp_mobile" type="text" class="form-control" placeholder="07XXXXXXXX" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr />
+                                <!-- Job Info -->
+                                <h5 class="m-b-10"><strong>Job Information</strong></h5>
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Job Title <span class="text-danger">*</span></label>
+                                            <input id="emp_job_title" type="text" class="form-control" placeholder="e.g. Software Engineer" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Employment Type <span class="text-danger">*</span></label>
+                                            <select id="emp_employment_type" class="form-control">
+                                                <option value="">-- Select --</option>
+                                                <option value="PERMANENT">Permanent</option>
+                                                <option value="CONTRACT">Contract</option>
+                                                <option value="CASUAL">Casual</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Department <span class="text-danger">*</span></label>
+                                            <select id="emp_department_id" class="form-control select2">
+                                                <option value="">-- Select Department --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Hire Date <span class="text-danger">*</span></label>
+                                            <div class="input-group date" id="hire_date_picker">
+                                                <input id="emp_hire_date" type="text" class="form-control" placeholder="DD-MM-YYYY" readonly />
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Basic Salary (KES) <span class="text-danger">*</span></label>
+                                            <input id="emp_basic_salary" type="number" class="form-control" placeholder="0.00" min="0" step="0.01" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr />
+                                <!-- Statutory -->
+                                <h5 class="m-b-10"><strong>Statutory Numbers</strong></h5>
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>KRA PIN</label>
+                                            <input id="emp_kra_pin" type="text" class="form-control" placeholder="A000000000X" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>NSSF Number</label>
+                                            <input id="emp_nssf_number" type="text" class="form-control" placeholder="NSSF number" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>NHIF Number</label>
+                                            <input id="emp_nhif_number" type="text" class="form-control" placeholder="NHIF number" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr />
+                                <!-- Payment Method -->
+                                <h5 class="m-b-10"><strong>Payment Method</strong></h5>
+                                <div class="row m-b-10">
+                                    <div class="col-md-12">
+                                        <div class="btn-group" data-toggle="buttons">
+                                            <label class="btn btn-default active" id="lbl_bank_transfer">
+                                                <input type="radio" name="emp_payment_method" id="pm_bank" value="BANK" checked /> <i class="fa fa-university"></i> Bank Transfer
+                                            </label>
+                                            <label class="btn btn-default" id="lbl_mobile_money">
+                                                <input type="radio" name="emp_payment_method" id="pm_mpesa" value="MOBILE_MONEY" /> <i class="fa fa-mobile"></i> Mobile Money
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Bank fields -->
+                                <div id="bank_fields_section">
+                                    <div class="row">
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label>Bank <span class="text-danger">*</span></label>
+                                                <select id="emp_bank_id" class="form-control select2-bank">
+                                                    <option value="">-- Select Bank --</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label>Account Number</label>
+                                                <input id="emp_bank_account_no" type="text" class="form-control" placeholder="Account number" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label>Branch</label>
+                                                <input id="emp_bank_branch" type="text" class="form-control" placeholder="e.g. Westlands" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Mobile Money fields -->
+                                <div id="mobile_money_section" style="display:none;">
+                                    <div class="row">
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label>M-Pesa Number <span class="text-danger">*</span></label>
+                                                <input id="emp_mobile_money_number" type="text" class="form-control" placeholder="07XXXXXXXX" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr />
+                                <!-- Portal Login -->
+                                <h5 class="m-b-10"><strong>Portal Login</strong></h5>
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Password <span class="text-muted">(optional)</span></label>
+                                            <input id="emp_password" type="password" class="form-control" placeholder="Leave blank to auto-generate" />
+                                            <small class="text-muted">Auto-generated if blank. Employee will be prompted to change on first login.</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="emp-error-msg" class="alert alert-danger m-t-10" style="display:none;"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</a>
+                        <a href="#" class="btn btn-success btn-sm" id="btnSaveEmployee"><i class="fa fa-save"></i> Save Employee</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ── END ADD MODAL ──────────────────────────────────────────── -->
+
+        <!-- ── VIEW EMPLOYEE MODAL ───────────────────────────────────── -->
+        <div class="modal fade" id="view-employee-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+                        <h4 class="modal-title"><i class="fa fa-user"></i> Employee Details</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4 col-sm-6"><label>Full Name</label><input id="vw_name" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-sm-6"><label>Email</label><input id="vw_email" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-sm-6"><label>Mobile</label><input id="vw_mobile" class="form-control" readonly /></div>
+                        </div>
+                        <div class="row m-t-10">
+                            <div class="col-md-4 col-sm-6"><label>ID Number</label><input id="vw_id_number" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-sm-6"><label>Job Title</label><input id="vw_job_title" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-sm-6"><label>Department</label><input id="vw_department" class="form-control" readonly /></div>
+                        </div>
+                        <div class="row m-t-10">
+                            <div class="col-md-4 col-sm-6"><label>Employment Type</label><input id="vw_emp_type" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-sm-6"><label>Hire Date</label><input id="vw_hire_date" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-sm-6"><label>Basic Salary</label><input id="vw_salary" class="form-control" readonly /></div>
+                        </div>
+                        <div class="row m-t-10">
+                            <div class="col-md-4 col-sm-6"><label>KRA PIN</label><input id="vw_kra_pin" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-sm-6"><label>NSSF</label><input id="vw_nssf" class="form-control" readonly /></div>
+                            <div class="col-md-4 col-sm-6"><label>NHIF</label><input id="vw_nhif" class="form-control" readonly /></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" id="vw_employee_id" />
+                        <input type="hidden" id="vw_is_hod" value="0" />
+                        <a href="#" class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</a>
+                        <a href="#" class="btn btn-warning btn-sm" id="btnToggleHod">
+                            <i class="fa fa-star"></i> <span id="hodBtnLabel">Make HOD</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ── END VIEW MODAL ────────────────────────────────────────── -->
+
+        <!-- ── DOCUMENTS MODAL ───────────────────────────────────────── -->
+        <div class="modal fade" id="docs-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+                        <h4 class="modal-title"><i class="fa fa-folder-open"></i> Documents — <span id="docs_emp_name"></span></h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="docs_employee_id" />
+
+                        <!-- Upload form -->
+                        <div class="panel panel-default m-b-15">
+                            <div class="panel-heading"><h5 class="panel-title"><i class="fa fa-upload"></i> Upload New Document</h5></div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Document Type</label>
+                                            <select id="doc_type" class="form-control">
+                                                <option value="Contract">Employment Contract</option>
+                                                <option value="ID">ID Copy</option>
+                                                <option value="KRA">KRA PIN Certificate</option>
+                                                <option value="NSSF">NSSF Card</option>
+                                                <option value="SHIF">SHIF Card</option>
+                                                <option value="Academic">Academic Certificate</option>
+                                                <option value="Performance">Performance Review</option>
+                                                <option value="Disciplinary">Disciplinary Letter</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label>Select File</label>
+                                            <input id="doc_file" type="file" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>&nbsp;</label>
+                                            <div>
+                                                <a href="#" class="btn btn-success btn-block" id="btnUploadDoc">
+                                                    <i class="fa fa-upload"></i> Upload
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="doc-upload-error" class="alert alert-danger" style="display:none;"></div>
+                                <div id="doc-upload-success" class="alert alert-success" style="display:none;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Documents list -->
+                        <table id="docsTable" class="table table-striped table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Document Type</th>
+                                    <th>Uploaded On</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ── END DOCUMENTS MODAL ───────────────────────────────────── -->
+
+        <!-- ── DEDUCTIONS MODAL ──────────────────────────────────────── -->
+        <div class="modal fade" id="deductions-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+                        <h4 class="modal-title"><i class="fa fa-minus-circle"></i> Custom Deductions — <span id="ded_emp_name"></span></h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="ded_employee_id" />
+                        <div class="panel panel-default m-b-15">
+                            <div class="panel-heading"><h5 class="panel-title">Add Deduction</h5></div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Deduction Name</label>
+                                            <input type="text" id="ded_name" class="form-control" placeholder="e.g. Loan Repayment" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Amount (KES)</label>
+                                            <input type="number" id="ded_amount" class="form-control" placeholder="0.00" min="0" step="0.01" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Recurring?</label>
+                                            <select id="ded_recurring" class="form-control">
+                                                <option value="true">Yes — every payroll</option>
+                                                <option value="false">No — this month only</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label>&nbsp;</label>
+                                            <a href="javascript:AddDeduction(this);" class="btn btn-success btn-block"><i class="fa fa-plus"></i> Add</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <table id="deductionsTable" class="table table-striped table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Deduction</th>
+                                    <th>Amount (KES)</th>
+                                    <th>Recurring</th>
+                                    <th>Added On</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ── END DEDUCTIONS MODAL ──────────────────────────────────── -->
+
+        <hr />
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="~/assets/static/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/static/plugins/DataTables/extensions/Responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/assets/static/plugins/select2/dist/js/select2.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/assets/static/js/employees.js"></script>
+    <script src="~/assets/static/js/emp-deductions.js"></script>
+}

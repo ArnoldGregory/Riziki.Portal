@@ -1,0 +1,79 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/DataTables/media/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-institution"></i> Statutory Returns <small>Monthly PAYE / NSSF / SHIF / Housing Levy</small></h1>
+
+<div class="panel panel-inverse">
+    <div class="panel-heading">
+        <h4 class="panel-title">Monthly Statutory Obligations</h4>
+    </div>
+    <div class="panel-body">
+
+        <div class="row m-b-15">
+            <div class="col-md-3">
+                <label>Tax Year</label>
+                <select id="selStatYear" class="form-control"></select>
+            </div>
+            <div class="col-md-2">
+                <label>&nbsp;</label>
+                <a href="javascript:LoadStatutory();" class="btn btn-primary btn-block">
+                    <i class="fa fa-search"></i> Load
+                </a>
+            </div>
+            <div class="col-md-2">
+                <label>&nbsp;</label>
+                <a href="#" id="btnDownloadStatutory" class="btn btn-success btn-block">
+                    <i class="fa fa-file-excel-o"></i> Download Excel
+                </a>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i>
+            Only periods with status <strong>PROCESSED</strong> or <strong>LOCKED</strong> are included.
+        </div>
+
+        <div id="stat-table-wrap">
+            <div class="table-responsive">
+                <table id="statutoryTable" class="table table-striped table-hover table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Employees</th>
+                            <th>Gross Pay (KES)</th>
+                            <th>NSSF (KES)</th>
+                            <th>SHIF (KES)</th>
+                            <th>Housing Levy (KES)</th>
+                            <th>PAYE (KES)</th>
+                            <th>Total Deductions (KES)</th>
+                            <th>Net Pay (KES)</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr class="info">
+                            <th>TOTALS</th>
+                            <th id="ft_emp"></th>
+                            <th id="ft_gross"></th>
+                            <th id="ft_nssf"></th>
+                            <th id="ft_shif"></th>
+                            <th id="ft_housing"></th>
+                            <th id="ft_paye"></th>
+                            <th id="ft_deductions"></th>
+                            <th id="ft_net"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="~/assets/static/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/assets/static/js/reports-statutory.js?v=1"></script>
+}

@@ -1,0 +1,65 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/DataTables/media/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-bullhorn"></i> Notice Board</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel panel-inverse">
+            <div class="panel-heading"><h4 class="panel-title">Post New Notice</h4></div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="txtTitle" class="form-control" placeholder="Notice title" />
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="txtContent" class="form-control" rows="4" placeholder="Notice content..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Target Audience</label>
+                    <select id="selTarget" class="form-control">
+                        <option value="ALL">Everyone</option>
+                        <option value="HR">HR Only</option>
+                        <option value="EMPLOYEE">Employees Only</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Expiry Date <small class="text-muted">(optional)</small></label>
+                    <input type="date" id="txtExpiry" class="form-control" />
+                </div>
+                <a href="javascript:PostNotice(this);" class="btn btn-primary btn-block"><i class="fa fa-send"></i> Post Notice</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <div class="panel-heading-btn">
+                    <a href="javascript:LoadNotices();" class="btn btn-xs btn-icon btn-circle btn-success"><i class="fa fa-repeat"></i></a>
+                </div>
+                <h4 class="panel-title">Posted Notices</h4>
+            </div>
+            <div class="panel-body">
+                <table id="noticesTable" class="table table-striped table-hover table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Audience</th>
+                            <th>Posted</th>
+                            <th>Expires</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="~/assets/static/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/static/js/noticeboard-manage.js"></script>
+}

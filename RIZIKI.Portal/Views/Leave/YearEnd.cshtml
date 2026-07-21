@@ -1,0 +1,68 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-calendar-check-o"></i> Leave <small>Year-End Carry Forward</small></h1>
+
+<div class="panel panel-inverse">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="@Url.Action("Index","Dashboard")" class="btn btn-xs btn-icon btn-circle btn-danger" data-click="panel-remove"><i class="fa fa-times"></i></a>
+        </div>
+        <h4 class="panel-title">Year-End Leave Processing</h4>
+    </div>
+    <div class="panel-body">
+
+        <div class="alert alert-warning">
+            <i class="fa fa-exclamation-triangle m-r-5"></i>
+            <strong>This operation cannot be undone.</strong> It creates next-year leave balances for all active employees,
+            carrying over unused days up to the cap you set. Run it once at year end.
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Process Leave Year <span class="text-danger">*</span></label>
+                    <select id="cf_year" class="form-control">
+                    </select>
+                    <span class="help-block">The year whose balances will roll forward into the next year.</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Max Carry-Forward Days <span class="text-danger">*</span></label>
+                    <input id="cf_max" type="number" class="form-control" value="10" min="0" max="365" />
+                    <span class="help-block">Remaining days above this cap are forfeited.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row m-t-10">
+            <div class="col-md-12">
+                <a href="#" class="btn btn-danger btn-sm" onclick="RunCarryForward(this);">
+                    <i class="fa fa-play-circle"></i> Run Carry Forward
+                </a>
+            </div>
+        </div>
+
+        <hr />
+        <h5><i class="fa fa-history m-r-5"></i>Previous Runs</h5>
+        <table id="cfLogTable" class="table table-striped table-bordered table-condensed table-hover">
+            <thead>
+                <tr>
+                    <th>Year Processed</th>
+                    <th>Max Carry Days</th>
+                    <th>Processed On</th>
+                </tr>
+            </thead>
+        </table>
+
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="~/assets/static/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/assets/static/js/leave-yearend.js"></script>
+}

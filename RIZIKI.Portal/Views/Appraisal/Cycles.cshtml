@@ -1,0 +1,57 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/DataTables/media/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-star"></i> Performance Appraisal — Cycles</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel panel-inverse">
+            <div class="panel-heading"><h4 class="panel-title">New Appraisal Cycle</h4></div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label>Cycle Name</label>
+                    <input type="text" id="txtCycleName" class="form-control" placeholder="e.g. Annual Review 2026" />
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="txtStartDate" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" id="txtEndDate" class="form-control" />
+                </div>
+                <a href="javascript:CreateCycle(this);" class="btn btn-primary btn-block"><i class="fa fa-plus"></i> Create Cycle</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <div class="panel-heading-btn">
+                    <a href="javascript:LoadCycles();" class="btn btn-xs btn-icon btn-circle btn-success"><i class="fa fa-repeat"></i></a>
+                </div>
+                <h4 class="panel-title">Appraisal Cycles</h4>
+            </div>
+            <div class="panel-body">
+                <table id="cyclesTable" class="table table-striped table-hover table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Cycle Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="~/assets/static/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/static/js/appraisal-cycles.js"></script>
+}

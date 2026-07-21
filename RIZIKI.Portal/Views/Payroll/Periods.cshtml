@@ -1,0 +1,193 @@
+@using System.Security.Claims
+@{
+    var profileId = User.FindFirstValue("profile_id") ?? "0";
+}
+@section PageStyles {
+    <link href="~/assets/static/plugins/DataTables/media/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/DataTables/extensions/Responsive/css/responsive.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+}
+<script>var RIZIKI_PROFILE_ID = @profileId;</script>
+
+<h1 class="page-header"><i class="fa fa-calendar"></i> Payroll Periods <small>Manage &amp; Run</small></h1>
+
+<div class="panel panel-inverse" id="main_panel">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="javascript:LoadPeriods();" class="btn btn-xs btn-icon btn-circle btn-success"><i class="fa fa-repeat"></i></a>
+            <a href="@Url.Action("Index","Dashboard")" class="btn btn-xs btn-icon btn-circle btn-danger" data-click="panel-remove"><i class="fa fa-times"></i></a>
+        </div>
+        <h4 class="panel-title">Payroll Periods</h4>
+    </div>
+    <div class="panel-body">
+
+        <div class="row m-b-10">
+            <div class="col-md-12">
+                <a href="#" class="btn btn-sm btn-success" data-toggle="modal" data-target="#create-period-modal">
+                    <i class="fa fa-plus"></i> Create Period
+                </a>
+                <a href="#" class="btn btn-sm btn-primary m-l-5" id="btnQuickRun">
+                    <i class="fa fa-bolt"></i> Quick Run
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table id="periodsTable" class="table table-striped table-hover table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Period Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Payment Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- CREATE PERIOD MODAL -->
+<div class="modal fade" id="create-period-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+                <h4 class="modal-title"><i class="fa fa-plus"></i> Create Payroll Period</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Period Name <span class="text-danger">*</span></label>
+                    <input id="new_period_name" type="text" class="form-control" placeholder="e.g. June 2026" />
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input id="new_period_start" type="date" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input id="new_period_end" type="date" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Payment Date</label>
+                            <input id="new_period_payment" type="date" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div id="create-period-error" class="alert alert-danger" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</a>
+                <a href="#" class="btn btn-success btn-sm" id="btnCreatePeriod"><i class="fa fa-save"></i> Create</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW PAYSLIPS MODAL -->
+<div class="modal fade" id="payslips-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="width:90%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+                <h4 class="modal-title"><i class="fa fa-file-text"></i> Payslips — <span id="payslip_period_name"></span></h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="payslip_period_id" />
+                <div class="row m-b-10">
+                    <div class="col-md-12">
+                        <a href="#" class="btn btn-sm btn-info" id="btnBankFile">
+                            <i class="fa fa-download"></i> Download Bank File (CSV)
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="payslipsTable" class="table table-striped table-hover table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Basic (KES)</th>
+                                <th>Allowances (KES)</th>
+                                <th>Overtime (KES)</th>
+                                <th>Gross (KES)</th>
+                                <th>PAYE</th>
+                                <th>NSSF</th>
+                                <th>SHIF</th>
+                                <th>Housing</th>
+                                <th>Advance</th>
+                                <th>Net Pay (KES)</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr class="info">
+                                <th>TOTALS</th>
+                                <th id="ft_basic"></th>
+                                <th id="ft_allowances"></th>
+                                <th id="ft_overtime"></th>
+                                <th id="ft_gross"></th>
+                                <th id="ft_paye"></th>
+                                <th id="ft_nssf"></th>
+                                <th id="ft_shif"></th>
+                                <th id="ft_housing"></th>
+                                <th id="ft_advance"></th>
+                                <th id="ft_net"></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- APPROVE / REJECT PAYROLL MODAL (ADMIN only) -->
+<div class="modal fade" id="approve-payroll-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+                <h4 class="modal-title"><i class="fa fa-check-circle text-success"></i> Review Payroll — <span id="approve_period_name"></span></h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="approve_period_id" />
+                <div class="alert alert-warning">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    Approving will move this payroll to <strong>PROCESSED</strong>. Rejecting will return it to <strong>OPEN</strong> so HR can make corrections.
+                </div>
+                <div class="form-group">
+                    <label>Comments (optional)</label>
+                    <textarea id="approve_comments" class="form-control" rows="3" placeholder="Enter any notes or reasons..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</a>
+                <a href="#" class="btn btn-danger btn-sm" id="btnRejectPayroll"><i class="fa fa-times-circle"></i> Reject</a>
+                <a href="#" class="btn btn-success btn-sm" id="btnApprovePayroll"><i class="fa fa-check-circle"></i> Approve</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="~/assets/static/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/static/plugins/DataTables/extensions/Responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/assets/static/js/payroll-periods.js?v=4"></script>
+}

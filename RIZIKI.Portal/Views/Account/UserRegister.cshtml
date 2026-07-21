@@ -1,0 +1,134 @@
+@model RIZIKI.Portal.Models.Auth.RegisterViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>RIZIKI PORTAL — Register Your Organisation</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <link rel="shortcut icon" type="image/png" href="~/assets/static/img/favicon.ico" />
+    <link href="~/assets/static/plugins/jquery-ui/themes/base/minified/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/assets/static/css/animate.min.css" rel="stylesheet" />
+    <link href="~/desiredfont.css" rel="stylesheet" />
+    <link href="~/assets/static/css/style.min.css" rel="stylesheet" />
+    <link href="~/assets/static/css/style-responsive.min.css" rel="stylesheet" />
+    <link href="~/assets/static/css/theme/default.css" rel="stylesheet" id="theme" />
+</head>
+<body class="pace-top bg-white">
+    <div id="page-loader" class="fade in"><span class="spinner"></span></div>
+    <div id="page-container" class="fade">
+        <div class="login login-with-news-feed">
+            <!-- left image panel -->
+            <div class="news-feed">
+                <div class="news-image">
+                    <img src="~/assets/static/img/brand2d/6.jpg" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center right;" />
+                </div>
+            </div>
+            <!-- right form panel -->
+            <div class="right-content">
+                <div class="login-content" style="width:340px;">
+                    <img class="madison-logo" src="~/assets/static/img/POCHI_LOGO.png" alt="Riziki logo" />
+                    <h4 class="m-t-10 m-b-20" style="font-weight:600;">Register Your Organisation</h4>
+
+                    <form asp-controller="Account" asp-action="UserRegister" method="POST" class="margin-bottom-0" id="registerForm">
+                        @Html.AntiForgeryToken()
+
+                        @if (!string.IsNullOrEmpty(Model?.errormessage))
+                        {
+                            <div class="alert alert-danger">@Model.errormessage</div>
+                        }
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <div class="alert alert-danger">@err.ErrorMessage</div>
+                            }
+                        }
+
+                        <!-- Company info -->
+                        <p class="text-muted m-b-5"><strong>Company Details</strong></p>
+
+                        <div class="form-group m-b-10">
+                            <input asp-for="CompanyName" class="form-control" placeholder="Company / Organisation Name *" required />
+                        </div>
+                        <div class="form-group m-b-10">
+                            <input asp-for="CompanyEmail" type="email" class="form-control" placeholder="Company Email" />
+                        </div>
+                        <div class="form-group m-b-15">
+                            <input asp-for="CompanyPhone" class="form-control" placeholder="Company Phone" />
+                        </div>
+
+                        <!-- Admin info -->
+                        <p class="text-muted m-b-5"><strong>HR Admin Account</strong></p>
+
+                        <div class="form-group m-b-10">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <input asp-for="FirstName" class="form-control" placeholder="First Name *" required />
+                                </div>
+                                <div class="col-xs-6">
+                                    <input asp-for="LastName" class="form-control" placeholder="Last Name *" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group m-b-10">
+                            <input asp-for="AdminEmail" type="email" class="form-control" placeholder="Admin Email *" required />
+                        </div>
+                        <div class="form-group m-b-10">
+                            <input asp-for="AdminPhone" class="form-control" placeholder="Admin Phone" />
+                        </div>
+                        <div class="form-group m-b-10">
+                            <div class="input-group">
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Password * (min 6 chars)" required minlength="6" />
+                                <span class="input-group-addon" style="cursor:pointer;"><i class="glyphicon glyphicon-eye-open reg-eye"></i></span>
+                            </div>
+                        </div>
+                        <div class="form-group m-b-20">
+                            <div class="input-group">
+                                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password *" required />
+                                <span class="input-group-addon" style="cursor:pointer;"><i class="glyphicon glyphicon-eye-open reg-eye"></i></span>
+                            </div>
+                        </div>
+
+                        <div class="login-buttons">
+                            <button id="btnRegister" type="submit" class="btn btn-success btn-block btn-sm">
+                                <i class="fa fa-building"></i> Register Organisation
+                            </button>
+                            <br />
+                            <a href="@Url.Action("Login", "Account")" class="btn btn-default btn-block btn-sm">
+                                <i class="fa fa-arrow-left"></i> Back to Login
+                            </a>
+                        </div>
+                        <hr />
+                        <p class="text-center">
+                            Copyright &copy; @DateTime.Now.Year <a href="http://www.smartcode.co.ke" target="_blank">Smartcode Technologies</a>. All rights reserved.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/assets/static/plugins/jquery/jquery-1.9.1.min.js"></script>
+    <script src="~/assets/static/plugins/jquery/jquery-migrate-1.1.0.min.js"></script>
+    <script src="~/assets/static/plugins/jquery-ui/ui/minified/jquery-ui.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/assets/static/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/assets/static/plugins/jquery-cookie/jquery.cookie.js"></script>
+    <script src="~/assets/static/plugins/password-indicator/js/password-indicator.js"></script>
+    <script src="~/assets/static/js/hideShowPassword.min.js"></script>
+    <script src="~/assets/static/js/apps.min.js"></script>
+    <script src="~/assets/static/js/jquery.blockUI.js"></script>
+    <script src="~/assets/static/js/register.js"></script>
+    <script>
+        $(document).ready(function () {
+            App.init();
+            if (typeof FormPlugins !== 'undefined') { FormPlugins.init(); }
+        });
+    </script>
+</body>
+</html>

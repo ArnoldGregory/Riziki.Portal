@@ -1,0 +1,116 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-cogs"></i> Settings <small>Leave &amp; Payroll Policy</small></h1>
+
+<div class="panel panel-inverse">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="@Url.Action("Index","Dashboard")" class="btn btn-xs btn-icon btn-circle btn-danger" data-click="panel-remove"><i class="fa fa-times"></i></a>
+        </div>
+        <h4 class="panel-title">Company Policy</h4>
+    </div>
+    <div class="panel-body">
+        <div id="pol-loading" class="text-center p-20"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+        <div id="pol-form" style="display:none;">
+
+            <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i>
+                These settings apply company-wide. Leave entitlements take effect for new allocations; payroll approval takes effect on the next payroll run.
+            </div>
+
+            <!-- Leave Entitlements -->
+            <h5 class="m-b-10"><i class="fa fa-calendar"></i> Leave Entitlements (days per year)</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Annual Leave <span class="text-danger">*</span></label>
+                        <input id="pol_annual" type="number" class="form-control" min="0" placeholder="21" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Sick Leave <span class="text-danger">*</span></label>
+                        <input id="pol_sick" type="number" class="form-control" min="0" placeholder="14" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Maternity Leave <span class="text-danger">*</span></label>
+                        <input id="pol_maternity" type="number" class="form-control" min="0" placeholder="90" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Paternity Leave <span class="text-danger">*</span></label>
+                        <input id="pol_paternity" type="number" class="form-control" min="0" placeholder="14" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Carry Forward Limit (days)</label>
+                        <input id="pol_cf" type="number" class="form-control" min="0" placeholder="5" />
+                        <small class="text-muted">Max annual leave days carried forward to next year.</small>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Payroll Policy -->
+            <h5 class="m-b-10"><i class="fa fa-money"></i> Payroll Policy</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Overtime Rate (multiplier)</label>
+                        <input id="pol_ot_rate" type="number" class="form-control" min="1" step="0.25" placeholder="1.50" />
+                        <small class="text-muted">e.g. 1.5 = 150% of hourly rate</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Leave Approval Levels</label>
+                        <select id="pol_approval_levels" class="form-control">
+                            <option value="1">1 — HOD only</option>
+                            <option value="2">2 — HOD then HR</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Require Payroll Approval before Processing</label>
+                        <div class="btn-group btn-block" data-toggle="buttons">
+                            <label class="btn btn-default active col-xs-6" id="lbl_pol_approval_no">
+                                <input type="radio" name="pol_payroll_approval" id="pol_approval_no" value="0" checked />
+                                <i class="fa fa-times"></i> No — Auto-process
+                            </label>
+                            <label class="btn btn-default col-xs-6" id="lbl_pol_approval_yes">
+                                <input type="radio" name="pol_payroll_approval" id="pol_approval_yes" value="1" />
+                                <i class="fa fa-check"></i> Yes — Admin must approve
+                            </label>
+                        </div>
+                        <small class="text-muted m-t-5 display-block">
+                            When enabled, payroll moves to <strong>AWAITING APPROVAL</strong> after HR runs it. Admin must approve before it is finalised.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-10">
+                <div class="col-md-12">
+                    <a href="#" class="btn btn-success btn-sm" id="btnSavePolicy"><i class="fa fa-save"></i> Save Policy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/assets/static/js/settings-policy.js?v=1"></script>
+}

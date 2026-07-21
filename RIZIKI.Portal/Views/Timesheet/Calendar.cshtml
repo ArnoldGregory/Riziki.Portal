@@ -1,0 +1,658 @@
+@using System.Security.Claims
+@using RIZIKI.Portal.Controllers
+@model TimesheetCalendarVm
+
+@{
+    var daysInMonth    = DateTime.DaysInMonth(Model.Year, Model.Month);
+    var firstDayOfMonth = new DateTime(Model.Year, Model.Month, 1);
+    var firstDayOfWeek  = (int)firstDayOfMonth.DayOfWeek;
+    var totalMinutes    = Model.Entries.Sum(e => e.duration_minutes ?? 0);
+    var totalHours      = totalMinutes / 60;
+    var totalMins       = totalMinutes % 60;
+    var isCurrentMonth  = Model.Year == DateTime.Now.Year && Model.Month == DateTime.Now.Month;
+}
+
+@section PageStyles {
+<link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+<style>
+    :root {
+        --ts-accent:  #348fe2;
+        --ts-green:   #22c55e;
+        --ts-amber:   #f59e0b;
+        --ts-rose:    #f43f5e;
+        --ts-faint:   #d1d5db;
+        --ts-soft:    #6b7280;
+        --ts-paper2:  #f8f9fb;
+        --ts-paper3:  #f1f3f6;
+        --ts-radius:  10px;
+    }
+    .ts-nav { display:flex; align-items:center; gap:6px; }
+    .ts-nav-btn {
+        display:inline-flex; align-items:center; justify-content:center;
+        width:34px; height:34px; border-radius:8px;
+        border:1.5px solid var(--ts-faint); background:#fff;
+        color:#333; cursor:pointer; text-decoration:none; transition:all .15s;
+        font-size:16px; font-weight:700;
+    }
+    .ts-nav-btn:hover { border-color:var(--ts-accent); color:var(--ts-accent); background:#e8f3fd; }
+    .ts-today-btn { width:auto; padding:0 14px; font-size:13px; }
+
+    /* stat strip */
+    .ts-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin-bottom:18px; }
+    .ts-stat { background:#fff; border-radius:var(--ts-radius); border:1px solid var(--ts-faint); padding:12px 14px; }
+    .ts-stat-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ts-soft); }
+    .ts-stat-value { font-size:22px; font-weight:700; letter-spacing:-.4px; font-family:monospace; }
+    .ts-stat-value.green { color:var(--ts-green); }
+    .ts-stat-value.blue  { color:var(--ts-accent); }
+    .ts-stat-value.amber { color:var(--ts-amber); }
+
+    /* calendar */
+    .ts-cal { background:#fff; border-radius:14px; border:1px solid var(--ts-faint); overflow:hidden; }
+    .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); background:var(--ts-paper3); border-bottom:1px solid var(--ts-faint); }
+    .cal-wd { padding:10px 0; text-align:center; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--ts-soft); }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+    .cal-cell {
+        min-height:100px; border-right:1px solid var(--ts-faint); border-bottom:1px solid var(--ts-faint);
+        padding:7px; position:relative; cursor:pointer; transition:background .12s; overflow:hidden;
+    }
+    .cal-cell:nth-child(7n) { border-right:none; }
+    .cal-cell.empty { background:var(--ts-paper3); cursor:default; opacity:.5; }
+    .cal-cell:not(.empty):not(.future):hover { background:#e8f3fd; }
+    .cal-cell.today { background:#f0f8ff; }
+    .cal-cell.has-entries { background:#fafffc; }
+    .cal-cell.future { opacity:.4; cursor:not-allowed; pointer-events:none; background:var(--ts-paper3); }
+
+    .cal-day-num {
+        font-size:13px; font-weight:700; color:#333;
+        width:26px; height:26px; display:flex; align-items:center; justify-content:center; margin-bottom:3px;
+    }
+    .cal-cell.today .cal-day-num { background:var(--ts-accent); color:#fff; border-radius:50%; }
+
+    .cal-badge {
+        display:inline-flex; align-items:center;
+        background:#dcfce7; color:#15803d;
+        font-size:10px; font-weight:700; padding:2px 5px; border-radius:4px;
+        margin-bottom:4px; font-family:monospace;
+    }
+    .cal-pill {
+        display:flex; align-items:center; justify-content:space-between;
+        padding:2px 6px; border-radius:4px; font-size:10px; font-weight:600;
+        margin-bottom:2px; cursor:pointer; gap:3px;
+    }
+    .cal-pill .pl { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+
+    .pill-meeting   { background:#dbeafe; color:#1d4ed8; }
+    .pill-training  { background:#ede9fe; color:#6d28d9; }
+    .pill-project   { background:#dcfce7; color:#15803d; }
+    .pill-admin     { background:#fef3c7; color:#b45309; }
+    .pill-break     { background:#ffe4e6; color:#be123c; }
+    .pill-running   { background:#fff7ed; color:#c2410c; }
+    .pill-other     { background:#f3f4f6; color:#374151; }
+
+    /* table */
+    .ts-table-section { margin-top:20px; background:#fff; border-radius:14px; border:1px solid var(--ts-faint); overflow:hidden; }
+    .ts-table-hdr { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--ts-faint); }
+    .ts-table-hdr h4 { margin:0; font-size:14px; font-weight:700; }
+    .total-chip { font-size:12px; font-weight:600; background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:6px; }
+
+    /* modals */
+    .ts-backdrop {
+        position:fixed; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(3px);
+        z-index:2000; display:none; align-items:center; justify-content:center; padding:16px;
+    }
+    .ts-backdrop.open { display:flex; }
+    .ts-box {
+        background:#fff; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.15);
+        width:100%; max-width:460px; max-height:88vh; display:flex; flex-direction:column;
+        animation:tsSlide .18s ease;
+    }
+    @@keyframes tsSlide { from { opacity:0; transform:translateY(14px) scale(.98); } to { opacity:1; transform:none; } }
+    .ts-mhead { display:flex; align-items:flex-start; justify-content:space-between; padding:16px 18px 14px; border-bottom:1px solid var(--ts-faint); }
+    .ts-mhead h5 { margin:0; font-size:15px; font-weight:700; }
+    .ts-mhead .sub { font-size:12px; color:var(--ts-soft); margin-top:2px; }
+    .ts-mclose { width:30px; height:30px; border:none; background:var(--ts-paper3); border-radius:7px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .ts-mclose:hover { background:#ffe4e6; color:var(--ts-rose); }
+    .ts-mbody { padding:16px 18px; overflow-y:auto; flex:1; }
+    .ts-mfoot { padding:12px 18px; border-top:1px solid var(--ts-faint); display:flex; gap:8px; justify-content:space-between; }
+
+    /* activity grid */
+    .act-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .act-opt {
+        border:1.5px solid var(--ts-faint); border-radius:8px; padding:9px 6px;
+        text-align:center; cursor:pointer; font-size:11px; font-weight:600;
+        color:var(--ts-soft); transition:all .12s; display:flex; flex-direction:column; align-items:center; gap:3px;
+    }
+    .act-opt .ico { font-size:18px; }
+    .act-opt:hover, .act-opt.selected { border-color:var(--ts-accent); color:var(--ts-accent); background:#e8f3fd; }
+
+    /* entry card */
+    .ec { border:1px solid var(--ts-faint); border-radius:9px; padding:11px 13px; margin-bottom:9px; cursor:pointer; transition:all .12s; }
+    .ec:hover { border-color:var(--ts-accent); box-shadow:0 0 0 3px #e8f3fd; }
+    .ec-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; gap:8px; }
+    .ec-name { font-size:13px; font-weight:700; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .ec-dur  { font-family:monospace; font-size:12px; font-weight:600; color:var(--ts-green); }
+    .ec-meta { font-size:11px; color:var(--ts-soft); }
+    .badge-running { display:inline-flex; align-items:center; gap:4px; background:#fff7ed; color:var(--ts-amber); font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; }
+    .badge-running::before { content:''; width:6px; height:6px; background:var(--ts-amber); border-radius:50%; animation:tsPulse 1.2s infinite; }
+    @@keyframes tsPulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.4;transform:scale(.7);} }
+
+    /* detail */
+    .dg { display:grid; gap:12px; }
+    .dr { display:grid; grid-template-columns:90px 1fr; gap:6px; align-items:start; }
+    .dk { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ts-soft); padding-top:1px; }
+    .dv { font-size:13px; font-weight:500; }
+    .dv.big { font-size:20px; font-weight:800; font-family:monospace; color:var(--ts-green); }
+    .dnotes { background:var(--ts-paper2); border:1px solid var(--ts-faint); border-radius:7px; padding:9px 11px; font-size:12px; color:var(--ts-soft); line-height:1.6; }
+
+    /* form */
+    .fg { margin-bottom:14px; }
+    .fl { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ts-soft); margin-bottom:5px; }
+    .fc { width:100%; padding:9px 11px; border:1.5px solid var(--ts-faint); border-radius:7px; font-size:13px; color:#333; background:#fff; outline:none; transition:border-color .12s; }
+    .fc:focus { border-color:var(--ts-accent); box-shadow:0 0 0 3px #e8f3fd; }
+    textarea.fc { resize:vertical; min-height:80px; }
+    .ferr { display:none; color:var(--ts-rose); font-size:11px; margin-top:3px; font-weight:600; }
+
+    @@media(max-width:600px) {
+        .cal-cell { min-height:72px; padding:5px; }
+        .cal-pill { display:none; }
+        .act-grid { grid-template-columns:repeat(2,1fr); }
+        .dr { grid-template-columns:1fr; gap:2px; }
+    }
+</style>
+}
+
+<h1 class="page-header"><i class="fa fa-clock-o"></i> My Timesheet</h1>
+
+<div class="panel panel-inverse" id="main_panel">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="@Url.Action("Index","Dashboard")" class="btn btn-xs btn-icon btn-circle btn-danger" data-click="panel-remove"><i class="fa fa-times"></i></a>
+        </div>
+        <h4 class="panel-title">
+            @firstDayOfMonth.ToString("MMMM yyyy")
+            &nbsp;
+            <span class="ts-nav">
+                <a href="@Url.Action("Calendar","Timesheet",new{year=Model.PreviousMonth.Year,month=Model.PreviousMonth.Month})"
+                   class="ts-nav-btn" title="Previous month"><i class="fa fa-chevron-left"></i></a>
+                <a href="@Url.Action("Calendar","Timesheet",new{year=DateTime.Now.Year,month=DateTime.Now.Month})"
+                   class="ts-nav-btn ts-today-btn">Today</a>
+                @if (isCurrentMonth)
+                {
+                    <span class="ts-nav-btn" style="opacity:.3;cursor:not-allowed;pointer-events:none"><i class="fa fa-chevron-right"></i></span>
+                }
+                else
+                {
+                    <a href="@Url.Action("Calendar","Timesheet",new{year=Model.NextMonth.Year,month=Model.NextMonth.Month})"
+                       class="ts-nav-btn" title="Next month"><i class="fa fa-chevron-right"></i></a>
+                }
+            </span>
+        </h4>
+    </div>
+    <div class="panel-body">
+
+        <!-- Stats -->
+        <div class="ts-stats">
+            <div class="ts-stat">
+                <div class="ts-stat-label">Total Hours</div>
+                <div class="ts-stat-value green">@totalHours<span style="font-size:13px;font-weight:500">h @totalMins<span style="font-size:11px">m</span></span></div>
+            </div>
+            <div class="ts-stat">
+                <div class="ts-stat-label">Days Worked</div>
+                <div class="ts-stat-value blue">@Model.DayGroups.Count</div>
+            </div>
+            <div class="ts-stat">
+                <div class="ts-stat-label">Entries</div>
+                <div class="ts-stat-value blue">@Model.Entries.Count</div>
+            </div>
+            <div class="ts-stat">
+                <div class="ts-stat-label">Running</div>
+                <div class="ts-stat-value amber">@Model.Entries.Count(e => e.is_running)</div>
+            </div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="ts-cal">
+            <div class="cal-weekdays">
+                @foreach (var d in new[]{"Sun","Mon","Tue","Wed","Thu","Fri","Sat"})
+                {<div class="cal-wd">@d</div>}
+            </div>
+            <div class="cal-grid">
+                @for (int i = 0; i < firstDayOfWeek; i++)
+                {<div class="cal-cell empty"></div>}
+
+                @for (int day = 1; day <= daysInMonth; day++)
+                {
+                    var cellDate  = new DateOnly(Model.Year, Model.Month, day);
+                    var hasEntry  = Model.DayGroups.TryGetValue(cellDate, out var dg);
+                    var isToday   = cellDate == DateOnly.FromDateTime(DateTime.Now);
+                    var isFuture  = cellDate > DateOnly.FromDateTime(DateTime.Now);
+                    var dateStr   = cellDate.ToString("yyyy-MM-dd");
+                    var totDisp   = (hasEntry && dg != null) ? dg.TotalDisplay : "0h";
+
+                    <div class="cal-cell @(isToday?"today":"") @(hasEntry?"has-entries":"") @(isFuture?"future":"")"
+                         data-date="@dateStr" data-total="@totDisp">
+
+                        <div class="cal-day-num">@day</div>
+
+                        @if (hasEntry && dg != null)
+                        {
+                            <div class="cal-badge">@dg.TotalDisplay</div>
+                            @foreach (var e in dg.Entries.Take(2))
+                            {
+                                var pc = e.is_running ? "pill-running"
+                                    : e.activity_type switch {
+                                        "Meeting"     => "pill-meeting",
+                                        "Training"    => "pill-training",
+                                        "ProjectWork" => "pill-project",
+                                        "AdminWork"   => "pill-admin",
+                                        "Break"       => "pill-break",
+                                        _             => "pill-other"
+                                    };
+                                <div class="cal-pill @pc" onclick="event.stopPropagation();openEntryModal(@e.id)">
+                                    <span class="pl">@(e.activity_display ?? e.activity_type)</span>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Table -->
+        @if (Model.Entries.Any())
+        {
+        <div class="ts-table-section">
+            <div class="ts-table-hdr">
+                <h4>Daily Breakdown</h4>
+                <span class="total-chip">@totalHours h @totalMins m total</span>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="table table-hover table-bordered" style="font-size:13px;margin:0">
+                    <thead style="background:#f5f6f7">
+                        <tr>
+                            <th>Date</th>
+                            <th>Activity</th>
+                            <th>Started</th>
+                            <th>Ended</th>
+                            <th>Duration</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in Model.Entries.OrderByDescending(x => x.started_at))
+                        {
+                        <tr style="cursor:pointer" onclick="openEntryModal(@e.id)">
+                            <td style="font-weight:700;white-space:nowrap">@(e.started_at?.ToString("ddd, MMM d"))</td>
+                            <td>
+                                @if (e.is_running)
+                                {<span class="badge-running"><i class="fa fa-circle" style="font-size:7px"></i> Running</span>}
+                                <span style="font-weight:700;color:#f59e0b">@(e.activity_display ?? e.activity_type)</span>
+                            </td>
+                            <td style="font-family:monospace">@(e.started_at?.ToString("HH:mm"))</td>
+                            <td style="font-family:monospace">@(e.ended_at?.ToString("HH:mm") ?? "—")</td>
+                            <td style="font-family:monospace;font-weight:600">
+                                @if (e.is_running)
+                                {<span style="color:var(--ts-amber)">Running…</span>}
+                                else
+                                {<span>@e.duration_display</span>}
+                            </td>
+                            <td style="color:#6b7280;font-size:12px">@(string.IsNullOrEmpty(e.notes) ? "—" : e.notes)</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        }
+        else
+        {
+        <div class="ts-table-section" style="margin-top:18px">
+            <div style="text-align:center;padding:60px 20px;color:#6b7280">
+                <i class="fa fa-clock-o" style="font-size:48px;opacity:.3;margin-bottom:16px;display:block"></i>
+                <h4 style="margin:0 0 6px">No entries this month</h4>
+                <p style="margin:0;font-size:13px">Click any day on the calendar to log time.</p>
+            </div>
+        </div>
+        }
+
+    </div>
+</div>
+
+<!-- ═══════════════════ MODAL: DATE DETAIL ═══════════════════ -->
+<div id="mdDate" class="ts-backdrop" onclick="if(event.target===this)closeM('mdDate')">
+    <div class="ts-box">
+        <div class="ts-mhead">
+            <div>
+                <h5 id="mdDateTitle">Activities</h5>
+                <div class="sub" id="mdDateSub"></div>
+            </div>
+            <button class="ts-mclose" onclick="closeM('mdDate')"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="ts-mbody" id="mdDateBody"></div>
+        <div class="ts-mfoot">
+            <button class="btn btn-sm btn-primary" id="btnAddAct"><i class="fa fa-plus"></i> Add Activity</button>
+            <button class="btn btn-sm btn-default" onclick="closeM('mdDate')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════ MODAL: ADD ACTIVITY ═════════════════ -->
+<div id="mdAdd" class="ts-backdrop" onclick="if(event.target===this)closeM('mdAdd')">
+    <div class="ts-box">
+        <div class="ts-mhead">
+            <div>
+                <h5>Add Activity</h5>
+                <div class="sub" id="mdAddSub"></div>
+            </div>
+            <button class="ts-mclose" onclick="closeM('mdAdd')"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="ts-mbody">
+            <input type="hidden" id="addDate" />
+
+            <div class="fg">
+                <div class="fl">Activity Type</div>
+                <div class="act-grid" id="actGrid">
+                    <div class="act-opt" data-val="Meeting"     onclick="selAct(this)"><span class="ico">🤝</span>Meeting</div>
+                    <div class="act-opt" data-val="Training"    onclick="selAct(this)"><span class="ico">📚</span>Training</div>
+                    <div class="act-opt" data-val="ProjectWork" onclick="selAct(this)"><span class="ico">🗂</span>Project</div>
+                    <div class="act-opt" data-val="AdminWork"   onclick="selAct(this)"><span class="ico">📋</span>Admin</div>
+                    <div class="act-opt" data-val="Break"       onclick="selAct(this)"><span class="ico">☕</span>Break</div>
+                    <div class="act-opt" data-val="Other"       onclick="selAct(this)"><span class="ico">📌</span>Other</div>
+                </div>
+                <input type="hidden" id="selActVal" />
+                <div class="ferr" id="actErr">⚠ Please choose an activity type.</div>
+            </div>
+
+            <div class="fg" id="otherGrp" style="display:none">
+                <label class="fl">Description <span style="color:red">*</span></label>
+                <input type="text" class="fc" id="otherDesc" maxlength="200" placeholder="What were you doing?" />
+                <div class="ferr" id="otherErr">⚠ Please describe the activity.</div>
+            </div>
+
+            <div class="fg">
+                <label class="fl">Start Time <span style="color:red">*</span></label>
+                <input type="time" class="fc" id="addTime" />
+                <div class="ferr" id="timeErr">⚠ Please enter a start time.</div>
+            </div>
+
+            <div class="fg">
+                <label class="fl">End Time <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional — leave blank to start a running timer)</span></label>
+                <input type="time" class="fc" id="addEndTime" />
+                <div class="ferr" id="endErr">⚠ End time must be after start time.</div>
+            </div>
+
+            <div class="fg">
+                <label class="fl">Notes <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+                <textarea class="fc" id="addNotes" placeholder="What were you working on?"></textarea>
+            </div>
+
+            <div style="display:flex;gap:8px;justify-content:flex-end">
+                <button class="btn btn-default btn-sm" onclick="closeM('mdAdd')">Cancel</button>
+                <button class="btn btn-primary btn-sm" id="addSubmitBtn" onclick="submitActivity()">
+                    <i class="fa fa-play"></i> <span id="addSubmitLbl">Start Activity</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════ MODAL: ENTRY DETAIL ══════════════════ -->
+<div id="mdEntry" class="ts-backdrop" onclick="if(event.target===this)closeM('mdEntry')">
+    <div class="ts-box">
+        <div class="ts-mhead">
+            <h5>Activity Detail</h5>
+            <button class="ts-mclose" onclick="closeM('mdEntry')"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="ts-mbody" id="mdEntryBody"></div>
+        <div class="ts-mfoot">
+            <button id="entryStopBtn" class="btn btn-danger btn-sm" style="display:none" onclick="stopRunningEntry()">
+                <i class="fa fa-stop-circle"></i> Stop Activity
+            </button>
+            <button class="btn btn-default btn-sm" onclick="closeM('mdEntry')" style="margin-left:auto">Close</button>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+<script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+<script>
+// ── DATA ───────────────────────────────────────────────────────────────
+const allEntries = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+    Model.Entries,
+    new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }
+));
+
+let _selDate = null;
+
+// ── MODAL HELPERS ──────────────────────────────────────────────────────
+function openM(id)  { document.getElementById(id).classList.add('open'); }
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('keydown', e => { if(e.key==='Escape') ['mdDate','mdAdd','mdEntry'].forEach(closeM); });
+
+// ── CALENDAR CLICK ────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.cal-cell:not(.empty):not(.future)').forEach(cell => {
+        cell.addEventListener('click', () => openDateModal(cell.dataset.date, cell.dataset.total || '0h'));
+    });
+
+    document.getElementById('btnAddAct').addEventListener('click', e => { e.stopPropagation(); openAddModal(); });
+
+    document.getElementById('addEndTime').addEventListener('input', () => {
+        document.getElementById('addSubmitLbl').textContent =
+            document.getElementById('addEndTime').value ? 'Log Activity' : 'Start Activity';
+    });
+});
+
+// ── DATE MODAL ────────────────────────────────────────────────────────
+function openDateModal(dateStr, total) {
+    _selDate = dateStr;
+    document.getElementById('mdDateTitle').textContent = 'Activities — ' + total;
+    document.getElementById('mdDateSub').textContent   = fmtDate(dateStr);
+
+    const dayEntries = allEntries.filter(e => {
+        if (!e || !e.startedAt) return false;
+        return new Date(e.startedAt).toLocaleDateString('en-CA') === dateStr;
+    });
+
+    const body = document.getElementById('mdDateBody');
+    if (!dayEntries.length) {
+        body.innerHTML = `<div style="text-align:center;padding:40px 0;color:#6b7280">
+            <i class="fa fa-inbox" style="font-size:36px;opacity:.4;margin-bottom:12px;display:block"></i>
+            <div style="font-weight:700;font-size:13px;color:#333;margin-bottom:4px">No entries</div>
+            <div style="font-size:12px">Click Add Activity to log time.</div></div>`;
+    } else {
+        body.innerHTML = dayEntries.map(e => {
+            const label = `<span style="color:var(--ts-amber);font-weight:700">${e.activityDisplay || e.activityType || 'Activity'}</span>`;
+            const dur   = e.isRunning
+                ? `<span class="badge-running"><i class="fa fa-circle" style="font-size:7px"></i> Running</span>`
+                : `<span class="ec-dur">${fmtDur(e.durationMinutes)}</span>`;
+            return `<div class="ec" onclick="openEntryModal(${e.id})">
+                <div class="ec-top"><div class="ec-name">${label}</div>${dur}</div>
+                <div class="ec-meta"><i class="fa fa-clock-o"></i> ${fmtTime(e.startedAt)}</div>
+                ${e.notes ? `<div style="margin-top:6px;font-size:12px;color:#6b7280;background:#f8f9fb;padding:6px 8px;border-radius:6px">${e.notes}</div>` : ''}
+            </div>`;
+        }).join('');
+    }
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const sel   = parseDate(dateStr);
+    document.getElementById('btnAddAct').style.display = (sel && sel > today) ? 'none' : 'inline-flex';
+
+    openM('mdDate');
+}
+
+// ── ADD MODAL ─────────────────────────────────────────────────────────
+function openAddModal() {
+    closeM('mdDate');
+    document.getElementById('mdAddSub').textContent   = fmtDate(_selDate);
+    document.getElementById('addDate').value          = _selDate || '';
+    document.getElementById('addNotes').value         = '';
+    document.getElementById('selActVal').value        = '';
+    document.getElementById('otherDesc').value        = '';
+    document.getElementById('otherGrp').style.display = 'none';
+    document.getElementById('addEndTime').value       = '';
+    document.getElementById('addSubmitLbl').textContent = 'Start Activity';
+    ['actErr','otherErr','timeErr','endErr'].forEach(id => document.getElementById(id).style.display = 'none');
+    document.querySelectorAll('.act-opt').forEach(o => o.classList.remove('selected'));
+
+    const now = new Date();
+    const todayStr = now.toLocaleDateString('en-CA');
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('addTime').value = (_selDate === todayStr) ? `${hh}:${mm}` : '';
+
+    openM('mdAdd');
+}
+
+function selAct(el) {
+    document.querySelectorAll('.act-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    const val = el.dataset.val;
+    document.getElementById('selActVal').value = val;
+    document.getElementById('otherGrp').style.display = val === 'Other' ? 'block' : 'none';
+    if (val !== 'Other') { document.getElementById('otherErr').style.display = 'none'; document.getElementById('otherDesc').value = ''; }
+}
+
+async function submitActivity() {
+    const type     = document.getElementById('selActVal').value;
+    const notes    = document.getElementById('addNotes').value;
+    const date     = document.getElementById('addDate').value;
+    const timeVal  = document.getElementById('addTime').value;
+    const endVal   = document.getElementById('addEndTime').value;
+    const other    = document.getElementById('otherDesc').value.trim();
+
+    let valid = true;
+    document.getElementById('actErr').style.display  = !type ? 'block' : 'none'; if (!type) valid = false;
+    document.getElementById('otherErr').style.display = (type==='Other'&&!other) ? 'block' : 'none'; if (type==='Other'&&!other) valid = false;
+    document.getElementById('timeErr').style.display = !timeVal ? 'block' : 'none'; if (!timeVal) valid = false;
+
+    if (endVal && timeVal) {
+        const sm = toMins(timeVal), em = toMins(endVal);
+        const bad = em <= sm;
+        document.getElementById('endErr').style.display = bad ? 'block' : 'none';
+        if (bad) valid = false;
+    } else { document.getElementById('endErr').style.display = 'none'; }
+
+    if (!valid) return;
+
+    const startedAt  = `${date}T${timeVal}:00`;
+    const endedAt    = endVal ? `${date}T${endVal}:00` : null;
+    const finalNotes = type === 'Other' ? (other + (notes ? ' — ' + notes : '')) : notes;
+    const isCompleted = !!endedAt;
+
+    const btn = document.getElementById('addSubmitBtn');
+    btn.disabled = true;
+    btn.blur(); // release focus so Swal can manage aria-hidden without browser warning
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (isCompleted ? 'Logging…' : 'Starting…');
+
+    try {
+        const r1 = await fetch('/Timesheet/StartTimer', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ activity_type: type, description: type === 'Other' ? other : null,
+                                   notes: finalNotes, started_at: startedAt })
+        });
+        const j1 = await r1.json();
+        if (!j1.success) { showErr(j1.message || 'Failed to start'); resetBtn(btn, isCompleted); return; }
+
+        if (isCompleted && j1.timesheetId) {
+            const r2 = await fetch('/Timesheet/StopTimer', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ id: j1.timesheetId, ended_at: endedAt, notes: finalNotes })
+            });
+            const j2 = await r2.json();
+            if (!j2.success) { showErr('Activity created but could not be stopped: ' + (j2.message||'')); setTimeout(()=>location.reload(),1500); return; }
+        }
+
+        closeM('mdAdd');
+        Swal.fire({ icon:'success', title:'Done!', text: (isCompleted ? 'Activity logged' : 'Activity started') + ' for ' + fmtDate(date), timer:1800, showConfirmButton:false });
+        setTimeout(() => location.reload(), 1900);
+    } catch(ex) {
+        showErr('Network error. Please try again.');
+        resetBtn(btn, isCompleted);
+    }
+}
+
+function resetBtn(btn, isCompleted) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa fa-play"></i> ' + (isCompleted ? 'Log Activity' : 'Start Activity');
+}
+
+// ── ENTRY MODAL ───────────────────────────────────────────────────────
+function openEntryModal(entryId) {
+    const e = allEntries.find(x => x.id === entryId);
+    if (!e) return;
+
+    const durHtml = e.isRunning
+        ? `<span class="badge-running"><i class="fa fa-circle" style="font-size:7px"></i> Running</span>`
+        : `<span class="dv big">${fmtDur(e.durationMinutes)}</span>`;
+
+    document.getElementById('mdEntryBody').innerHTML = `
+        <div class="dg">
+            <div class="dr"><div class="dk">Activity</div><div class="dv" style="color:var(--ts-amber);font-weight:700">${e.activityDisplay || e.activityType}</div></div>
+            <div class="dr"><div class="dk">Started</div><div class="dv" style="font-family:monospace">${fmtTime(e.startedAt)}</div></div>
+            <div class="dr"><div class="dk">Ended</div><div class="dv" style="font-family:monospace">${fmtTime(e.endedAt)}</div></div>
+            <div class="dr"><div class="dk">Duration</div><div>${durHtml}</div></div>
+            <div><div class="dk" style="margin-bottom:5px">Notes</div>
+                 <div class="dnotes">${e.notes || '<em style="opacity:.6">No notes</em>'}</div></div>
+        </div>`;
+
+    const stopBtn = document.getElementById('entryStopBtn');
+    if (e.isRunning) {
+        stopBtn.style.display = 'inline-flex';
+        stopBtn.dataset.eid   = e.id;
+    } else {
+        stopBtn.style.display = 'none';
+    }
+
+    closeM('mdDate');
+    openM('mdEntry');
+}
+
+async function stopRunningEntry() {
+    const entryId = document.getElementById('entryStopBtn').dataset.eid;
+    if (!entryId) return;
+
+    const conf = await Swal.fire({
+        title: 'Stop this activity?',
+        text:  'The end time will be set to right now.',
+        icon:  'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, stop it',
+        confirmButtonColor: '#f43f5e'
+    });
+    if (!conf.isConfirmed) return;
+
+    const btn = document.getElementById('entryStopBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Stopping…';
+
+    try {
+        const r = await fetch('/Timesheet/StopTimer', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ id: Number(entryId) })
+        });
+        const j = await r.json();
+        if (j.success) {
+            Swal.fire({ icon:'success', title:'Stopped!', timer:1500, showConfirmButton:false });
+            setTimeout(() => location.reload(), 1600);
+        } else {
+            showErr(j.message || 'Failed to stop');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-stop-circle"></i> Stop Activity';
+        }
+    } catch {
+        showErr('Network error. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-stop-circle"></i> Stop Activity';
+    }
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────
+function parseDate(s) { if(!s)return null; const[y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function fmtDate(s)  { const d=parseDate(s); if(!d||isNaN(d))return s; return d.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'}); }
+function fmtDur(m)   { if(m==null||isNaN(m))return '—'; const h=Math.floor(m/60),r=m%60; return h>0?`${h}h ${r}m`:`${r}m`; }
+function fmtTime(iso){ if(!iso)return '—'; const d=new Date(iso); if(isNaN(d))return '—'; return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+function toMins(t)   { const[h,m]=t.split(':').map(Number); return h*60+m; }
+function showErr(msg){ document.activeElement?.blur(); Swal.fire({ icon:'error', title:'Error', text: msg }); }
+</script>
+}

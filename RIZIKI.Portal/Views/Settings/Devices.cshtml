@@ -1,0 +1,139 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/DataTables/media/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-usb"></i> Biometric Devices</h1>
+
+<!-- ── DEVICES PANEL ──────────────────────────────────────────────────────── -->
+<div class="panel panel-inverse">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="javascript:LoadDevices();" class="btn btn-xs btn-icon btn-circle btn-success"><i class="fa fa-repeat"></i></a>
+        </div>
+        <h4 class="panel-title">Registered Scanners</h4>
+    </div>
+    <div class="panel-body">
+        <div class="row m-b-10">
+            <div class="col-md-12">
+                <a href="javascript:;" data-toggle="modal" data-target="#mdAddDevice" class="btn btn-primary">
+                    <i class="fa fa-plus"></i> Register Device
+                </a>
+            </div>
+        </div>
+        <table id="devicesTable" class="table table-striped table-hover table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Device Name</th>
+                    <th>Serial Number</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>API Key</th>
+                    <th></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<!-- ── FINGERPRINT IDs PANEL ─────────────────────────────────────────────── -->
+<div class="panel panel-inverse">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="javascript:LoadEmployees();" class="btn btn-xs btn-icon btn-circle btn-success"><i class="fa fa-repeat"></i></a>
+        </div>
+        <h4 class="panel-title">Employee Fingerprint IDs</h4>
+    </div>
+    <div class="panel-body">
+        <p class="text-muted">
+            Enter the enrollment ID for each employee as it appears on the scanner.
+            Leave blank to clear an assignment.
+        </p>
+        <table id="empTable" class="table table-striped table-hover table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Staff No.</th>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Fingerprint ID</th>
+                    <th></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<!-- ── ADD DEVICE MODAL ───────────────────────────────────────────────────── -->
+<div class="modal fade" id="mdAddDevice" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="fa fa-usb"></i> Register Biometric Device</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Device Name <span class="text-danger">*</span></label>
+                    <input type="text" id="txtDeviceName" class="form-control" placeholder="e.g. Main Entrance Scanner" />
+                </div>
+                <div class="form-group">
+                    <label>Serial Number <span class="text-danger">*</span></label>
+                    <input type="text" id="txtDeviceSerial" class="form-control" placeholder="Printed on the device label" />
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="txtDeviceLocation" class="form-control" placeholder="e.g. Ground Floor Lobby" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a href="javascript:RegisterDevice(this);" id="btnRegister" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Register
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── API KEY MODAL (shown after registration) ───────────────────────────── -->
+<div class="modal fade" id="mdApiKey" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-green-700">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-white"><i class="fa fa-key"></i> Device API Key</h4>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger"><strong>Copy this key now.</strong> It will not be shown again in full.</p>
+                <p>Configure your scanner's HTTP push URL and set the <code>X-Device-Key</code> header to this value:</p>
+                <div class="input-group m-t-10">
+                    <input type="text" id="txtApiKey" class="form-control" readonly />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" onclick="CopyApiKey()"><i class="fa fa-copy"></i> Copy</button>
+                    </span>
+                </div>
+                <hr />
+                <p class="text-muted f-s-12">
+                    <strong>Scanner push URL:</strong><br />
+                    <code id="txtPunchUrl"></code>
+                </p>
+                <p class="text-muted f-s-12">
+                    <strong>Payload format (JSON body):</strong><br />
+                    <code>{ "fingerprint_id": "001", "punch_type": "auto" }</code>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="~/assets/static/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/assets/static/js/settings-devices.js"></script>
+}

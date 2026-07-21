@@ -1,0 +1,79 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/select2/dist/css/select2.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-university"></i> Payment Details <small>How you receive your salary</small></h1>
+
+<div class="panel panel-inverse" id="main_panel">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="@Url.Action("Index","Dashboard")" class="btn btn-xs btn-icon btn-circle btn-danger" data-click="panel-remove"><i class="fa fa-times"></i></a>
+        </div>
+        <h4 class="panel-title">Payment Method</h4>
+    </div>
+    <div class="panel-body">
+        <div id="bank-loading" class="text-center p-20"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+        <div id="bank-form" style="display:none;">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle"></i> These details are used for salary payments. Ensure they are accurate.
+                    </div>
+
+                    <!-- Payment Method selector -->
+                    <div class="form-group">
+                        <label><strong>Payment Method</strong></label>
+                        <div class="btn-group btn-block" data-toggle="buttons">
+                            <label class="btn btn-default active col-xs-6" id="lbl_ss_bank">
+                                <input type="radio" name="ss_payment_method" id="ss_pm_bank" value="BANK" checked />
+                                <i class="fa fa-university"></i> Bank Transfer
+                            </label>
+                            <label class="btn btn-default col-xs-6" id="lbl_ss_mpesa">
+                                <input type="radio" name="ss_payment_method" id="ss_pm_mpesa" value="MOBILE_MONEY" />
+                                <i class="fa fa-mobile fa-lg"></i> Mobile Money
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Bank fields -->
+                    <div id="ss_bank_section">
+                        <div class="form-group">
+                            <label>Bank <span class="text-danger">*</span></label>
+                            <select id="ss_bank_id" class="form-control">
+                                <option value="">-- Select Bank --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Account Number <span class="text-danger">*</span></label>
+                            <input type="text" id="ss_bank_account_no" class="form-control" placeholder="Account number" />
+                        </div>
+                        <div class="form-group">
+                            <label>Branch</label>
+                            <input type="text" id="ss_bank_branch" class="form-control" placeholder="e.g. Westlands, CBD" />
+                        </div>
+                    </div>
+
+                    <!-- Mobile Money fields -->
+                    <div id="ss_mobile_section" style="display:none;">
+                        <div class="form-group">
+                            <label>M-Pesa Number <span class="text-danger">*</span></label>
+                            <input type="text" id="ss_mobile_money_number" class="form-control" placeholder="07XXXXXXXX" />
+                            <small class="text-muted">Enter the M-Pesa registered mobile number for salary payment.</small>
+                        </div>
+                    </div>
+
+                    <div class="m-t-20">
+                        <button id="btnSaveBank" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save Payment Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/assets/static/plugins/select2/dist/js/select2.min.js"></script>
+    <script src="~/assets/static/js/ss-bankdetails.js?v=2"></script>
+}

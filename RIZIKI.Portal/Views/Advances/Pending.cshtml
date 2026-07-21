@@ -1,0 +1,135 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/DataTables/media/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/DataTables/extensions/Responsive/css/responsive.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-money"></i> Salary Advances <small>HR – Pending Requests</small></h1>
+
+<div class="panel panel-inverse" id="main_panel">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="javascript:LoadAdvances();" class="btn btn-xs btn-icon btn-circle btn-success"><i class="fa fa-repeat"></i></a>
+            <a href="@Url.Action("Index","Dashboard")" class="btn btn-xs btn-icon btn-circle btn-danger" data-click="panel-remove"><i class="fa fa-times"></i></a>
+        </div>
+        <h4 class="panel-title">Pending Advance Requests</h4>
+    </div>
+    <div class="panel-body">
+
+        <div class="row m-b-10">
+            <div class="col-md-6">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-default active" id="btnAdvFilterPending" onclick="LoadAdvances('PENDING')">
+                        <i class="fa fa-clock-o"></i> Pending
+                    </button>
+                    <button type="button" class="btn btn-sm btn-default" id="btnAdvFilterAll" onclick="LoadAdvances('')">
+                        <i class="fa fa-list"></i> All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table id="advancesTable" class="table table-striped table-hover table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Amount (KES)</th>
+                            <th>Reason</th>
+                            <th>Repayment Months</th>
+                            <th>Status</th>
+                            <th>Requested On</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- VIEW / APPROVE MODAL -->
+<div class="modal fade" id="view-advance-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+                <h4 class="modal-title"><i class="fa fa-money"></i> Advance Request Details</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="view_adv_id" />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Employee</label>
+                            <input type="text" class="form-control" id="view_adv_emp" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Amount Requested (KES)</label>
+                            <input type="text" class="form-control" id="view_adv_amount" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Repayment Months</label>
+                            <input type="text" class="form-control" id="view_adv_months" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <input type="text" class="form-control" id="view_adv_status" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Reason</label>
+                            <textarea class="form-control" id="view_adv_reason" rows="3" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Requested On</label>
+                            <input type="text" class="form-control" id="view_adv_date" readonly />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reject reason — visible only for PENDING -->
+                <div class="row" id="adv-reject-reason-row" style="display:none;">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Reject Reason <small class="text-muted">(required when rejecting)</small></label>
+                            <textarea class="form-control" id="adv_reject_reason" rows="2" placeholder="State reason for rejection"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="adv-action-error" class="alert alert-danger" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</a>
+                <a href="#" class="btn btn-danger btn-sm" id="btnRejectAdvance" style="display:none;"><i class="fa fa-ban"></i> Reject</a>
+                <a href="#" class="btn btn-success btn-sm" id="btnApproveAdvance" style="display:none;"><i class="fa fa-check"></i> Approve</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="~/assets/static/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/static/plugins/DataTables/extensions/Responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/assets/static/js/advances-pending.js"></script>
+}

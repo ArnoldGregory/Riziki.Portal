@@ -1,0 +1,78 @@
+@section PageStyles {
+    <link href="~/assets/static/plugins/DataTables/media/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/DataTables/extensions/Responsive/css/responsive.bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+}
+
+<h1 class="page-header"><i class="fa fa-calendar-check-o"></i> Leave Report <small>All employee leave requests</small></h1>
+
+<!-- Filters -->
+<div class="panel panel-inverse">
+    <div class="panel-heading"><h4 class="panel-title"><i class="fa fa-filter"></i> Filters</h4></div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Employee</label>
+                    <select id="rpt_employee_id" class="form-control">
+                        <option value="">— All Employees —</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="rpt_status" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="REJECTED">Rejected</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2" style="padding-top:25px;">
+                <a href="#" id="btnLoadLeave" class="btn btn-primary btn-sm">
+                    <i class="fa fa-search"></i> Load Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="panel panel-inverse" id="results-panel" style="display:none;">
+    <div class="panel-heading">
+        <div class="panel-heading-btn">
+            <a href="javascript:void(0)" id="btnExportCsv" class="btn btn-xs btn-success"><i class="fa fa-download"></i> Export CSV</a>
+            <a href="@Url.Action("Index","Dashboard")" class="btn btn-xs btn-icon btn-circle btn-danger" data-click="panel-remove"><i class="fa fa-times"></i></a>
+        </div>
+        <h4 class="panel-title">Leave Requests — <span id="rpt_summary"></span></h4>
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table id="leaveRptTable" class="table table-striped table-hover table-bordered table-condensed">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Employee</th>
+                        <th>Leave Type</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Days</th>
+                        <th>Status</th>
+                        <th>Applied On</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="~/assets/static/plugins/DataTables/media/js/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/static/plugins/DataTables/extensions/Responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap-sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/assets/static/js/reports-leave.js"></script>
+}

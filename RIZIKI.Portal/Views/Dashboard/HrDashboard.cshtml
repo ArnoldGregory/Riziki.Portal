@@ -1,0 +1,202 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewBag.MenuLayout = "Side";
+}
+
+<h1 class="page-header">Dashboard <small>@(ViewBag.IsAdmin == true ? "Administrator" : "HR")</small></h1>
+
+<!-- ── Row 1: Stat cards ──────────────────────────────────────── -->
+<div class="row">
+    <div class="col-md-3 col-sm-6">
+        <div class="widget widget-stats bg-green">
+            <div class="stats-icon"><i class="fa fa-users"></i></div>
+            <div class="stats-info"><h4>EMPLOYEES</h4><p id="statEmployees"><i class="fa fa-spinner fa-spin"></i></p></div>
+            <div class="stats-link"><a href="/Employees/Index">View Detail <i class="fa fa-arrow-alt-circle-right"></i></a></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="widget widget-stats bg-blue">
+            <div class="stats-icon"><i class="fa fa-calendar-check"></i></div>
+            <div class="stats-info"><h4>PENDING LEAVE</h4><p id="statLeave"><i class="fa fa-spinner fa-spin"></i></p></div>
+            <div class="stats-link"><a href="/Leave/Pending">View Detail <i class="fa fa-arrow-alt-circle-right"></i></a></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="widget widget-stats bg-orange">
+            <div class="stats-icon"><i class="fa fa-money-bill"></i></div>
+            <div class="stats-info"><h4>PENDING ADVANCES</h4><p id="statAdvances"><i class="fa fa-spinner fa-spin"></i></p></div>
+            <div class="stats-link"><a href="/Advances/Pending">View Detail <i class="fa fa-arrow-alt-circle-right"></i></a></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="widget widget-stats bg-purple">
+            <div class="stats-icon"><i class="fa fa-calculator"></i></div>
+            <div class="stats-info"><h4>LAST PAYROLL (NET)</h4><p id="statPayroll"><i class="fa fa-spinner fa-spin"></i></p></div>
+            <div class="stats-link"><a href="/Payroll/Payslips">View Detail <i class="fa fa-arrow-alt-circle-right"></i></a></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Row 2: Payroll trend (8) + Payroll breakdown donut (4) ─── -->
+<div class="row m-t-20">
+    <div class="col-md-8">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <h4 class="panel-title" style="color:#fff;">
+                    <i class="fa fa-chart-area m-r-5"></i> Payroll Cost Trend
+                    <small style="color:#adb5bd;">— last 6 payroll runs</small>
+                </h4>
+            </div>
+            <div class="panel-body p-t-0">
+                <div id="chartPayrollTrend" style="min-height:270px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <h4 class="panel-title" style="color:#fff;">
+                    <i class="fa fa-chart-pie m-r-5"></i> Latest Payroll Breakdown
+                </h4>
+            </div>
+            <div class="panel-body p-t-0">
+                <div id="chartPayrollBreakdown" style="min-height:270px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Row 3: Dept headcount (5) + Leave type summary (7) ──────── -->
+<div class="row">
+    <div class="col-md-5">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <h4 class="panel-title" style="color:#fff;">
+                    <i class="fa fa-building m-r-5"></i> Headcount by Department
+                </h4>
+            </div>
+            <div class="panel-body p-t-0">
+                <div id="chartDeptHeadcount" style="min-height:270px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <h4 class="panel-title" style="color:#fff;">
+                    <i class="fa fa-umbrella-beach m-r-5"></i> Leave by Type
+                    <small style="color:#adb5bd;">— days requested</small>
+                </h4>
+            </div>
+            <div class="panel-body p-t-0">
+                <div id="chartLeaveType" style="min-height:270px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Row 4: Leave status (4) + Leave applications trend (8) ──── -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <h4 class="panel-title" style="color:#fff;">
+                    <i class="fa fa-chart-pie m-r-5"></i> Leave Requests by Status
+                </h4>
+            </div>
+            <div class="panel-body p-t-0">
+                <div id="chartLeaveStatus" style="min-height:270px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <h4 class="panel-title" style="color:#fff;">
+                    <i class="fa fa-chart-bar m-r-5"></i> Leave Applications Over Time
+                    <small style="color:#adb5bd;">— last 6 months</small>
+                </h4>
+            </div>
+            <div class="panel-body p-t-0">
+                <div id="chartLeaveMonthly" style="min-height:270px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Row 5: Advance requests by status (4) + HR self-service (8) -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <h4 class="panel-title" style="color:#fff;">
+                    <i class="fa fa-hand-holding-usd m-r-5"></i> Advance Requests by Status
+                </h4>
+            </div>
+            <div class="panel-body p-t-0">
+                <div id="chartAdvanceStatus" style="min-height:270px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-inverse">
+            <div class="panel-heading">
+                <h4 class="panel-title" style="color:#fff;">
+                    <i class="fa fa-user-circle m-r-5"></i> My Self-Service
+                    <small style="color:#adb5bd;">— your own leave & advance</small>
+                </h4>
+            </div>
+            <div class="panel-body">
+                <div class="row text-center">
+                    <div class="col-sm-3">
+                        <a href="/SelfService/MyLeaveRequests" class="btn btn-default btn-block m-b-10">
+                            <i class="fa fa-calendar-check fa-2x m-b-5"></i><br>My Leave
+                        </a>
+                    </div>
+                    <div class="col-sm-3">
+                        <a href="/SelfService/MyBalance" class="btn btn-default btn-block m-b-10">
+                            <i class="fa fa-balance-scale fa-2x m-b-5"></i><br>Leave Balance
+                        </a>
+                    </div>
+                    <div class="col-sm-3">
+                        <a href="/SelfService/MyAdvances" class="btn btn-default btn-block m-b-10">
+                            <i class="fa fa-money-bill-wave fa-2x m-b-5"></i><br>My Advances
+                        </a>
+                    </div>
+                    <div class="col-sm-3">
+                        <a href="/SelfService/MyPayslips" class="btn btn-default btn-block m-b-10">
+                            <i class="fa fa-file-invoice fa-2x m-b-5"></i><br>My Payslips
+                        </a>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-sm-3">
+                        <a href="/SelfService/Attendance" class="btn btn-default btn-block m-b-10">
+                            <i class="fa fa-clock fa-2x m-b-5"></i><br>Attendance
+                        </a>
+                    </div>
+                    <div class="col-sm-3">
+                        <a href="/SelfService/BankDetails" class="btn btn-default btn-block m-b-10">
+                            <i class="fa fa-university fa-2x m-b-5"></i><br>Bank Details
+                        </a>
+                    </div>
+                    <div class="col-sm-3">
+                        <a href="/SelfService/MyProfile" class="btn btn-default btn-block m-b-10">
+                            <i class="fa fa-id-card fa-2x m-b-5"></i><br>My Profile
+                        </a>
+                    </div>
+                    <div class="col-sm-3">
+                        <a href="/NoticeBoard/MyNotices" class="btn btn-default btn-block m-b-10">
+                            <i class="fa fa-bullhorn fa-2x m-b-5"></i><br>Notices
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script src="~/assets/static/plugins/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="~/assets/static/js/hrdash.js"></script>
+}

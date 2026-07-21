@@ -1,0 +1,196 @@
+﻿@using System.Security.Claims
+@model RIZIKI.Portal.Models.Auth.OtpViewModel
+@{
+    Layout = null;
+    var avatar = User?.FindFirst("avatar")?.Value ?? "user-default.svg";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>RIZIKI PORTAL</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <link rel="shortcut icon" type="image/png" href="~/assets/static/img/favicon.ico" />
+
+    <!-- ================== BEGIN BASE CSS STYLE ================== -->
+    <link href="~/assets/static/plugins/jquery-ui/themes/base/minified/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/static/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/assets/static/css/animate.min.css" rel="stylesheet" />
+    <link href="~/desiredfont.css" rel="stylesheet" />
+    <link href="~/assets/static/css/style.min.css" rel="stylesheet" />
+    <link href="~/assets/static/css/style-responsive.min.css" rel="stylesheet" />
+    <link href="~/assets/static/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/assets/static/css/bootstrap-pincode-input.css" rel="stylesheet" />
+    <style>
+            .tokenwrapper {
+                text-align: center;
+            }
+
+            .image-cover {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                object-fit: cover;
+                object-position: center right;
+                border: solid 3px whitesmoke;
+            }
+    </style>
+    <!-- ================== END BASE CSS STYLE ================== -->
+    <script src="~/assets/static/plugins/pace/pace.min.js"></script>
+</head>
+<body class="pace-top bg-white">
+    <div id="page-loader" class="fade in"><span class="spinner"></span></div>
+    <div id="page-container" class="fade">
+        <div class="login login-with-news-feed">
+            <div class="news-feed">
+                <div class="news-image">
+                    <img src="~/assets/static/img/brand2d/4.jpg" data-id="login-cover-image" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center right;" />
+                </div>
+            </div>
+            <div class="right-content">
+                <div class="login-content">
+                    <img class="madison-logo" src="~/assets/static/img/POCHI_LOGO.png" alt="Riziki logo" />
+
+                    <form asp-controller="Account" asp-action="VerifyOtp" method="POST" class="margin-bottom-0" id="otpForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="UserId" value="@Model.UserId" />
+                        <input type="hidden" name="Otp" id="otpHidden" />
+
+                        <div class="row" id="errors">
+                            @if (!string.IsNullOrEmpty(Model.DevOtpHint))
+                            {
+                                <div class="alert alert-warning">@Model.DevOtpHint</div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                            {
+                                <div class="alert alert-danger">@Model.ErrorMessage</div>
+                            }
+                        </div>
+
+                        <div class="form-group m-b-15">
+                            <div class="tokenwrapper">
+                                <img id="profilepic" class="image-cover" src="~/assets/static/img/profile-pics/@avatar" alt="" onerror="this.onerror=null;this.src='/assets/static/img/profile-pics/user-default.svg';" />
+                            </div>
+                        </div>
+
+                        <div class="form-group m-b-15">
+                            <label class="col-md-12 control-label">Key in the One Time Password (OTP) sent to your phone</label>
+                            <div class="text-center">
+                                <input type="password" id="password" name="otpvisible" class="form-control input-sm" autocomplete="off" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group m-b-15">
+                            <div class="tokenwrapper">
+                                <h4 id="countdown">--:--</h4>
+                            </div>
+                        </div>
+
+                        <div class="login-buttons">
+                            <button id="login" name="login" type="submit" class="btn btn-primary btn-block btn-sm">Validate</button>
+                        </div>
+                    </form>
+
+                    <br />
+                    <form asp-controller="Account" asp-action="ResendOtp" method="POST" class="margin-bottom-0">
+                        @Html.AntiForgeryToken()
+                        <div class="login-buttons">
+                            <button id="reset" name="reset" type="submit" class="btn btn-success btn-block btn-sm" style="display:none">Resend OTP</button>
+                        </div>
+                        <div class="m-t-20 text-inverse">
+                            <i class="fa fa-arrow-left"></i><a asp-controller="Account" asp-action="Login">&nbsp;Back to login</a>
+                        </div>
+                        <hr />
+                        <p class="text-center">
+                            Copyright &copy; @DateTime.Now.Year <a href="http://www.smartcode.co.ke" target="_blank">Smartcode Technologies</a>. All rights reserved.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================== BEGIN BASE JS ================== -->
+    <script src="~/assets/static/plugins/jquery/jquery-1.9.1.min.js"></script>
+    <script src="~/assets/static/plugins/jquery/jquery-migrate-1.1.0.min.js"></script>
+    <script src="~/assets/static/plugins/jquery-ui/ui/minified/jquery-ui.min.js"></script>
+    <script src="~/assets/static/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/assets/static/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/assets/static/plugins/jquery-cookie/jquery.cookie.js"></script>
+    <!-- ================== END BASE JS ================== -->
+    <!-- ================== BEGIN PAGE LEVEL JS ================== -->
+    <script src="~/assets/static/js/apps.min.js"></script>
+    <script src="~/assets/static/js/jquery.blockUI.js"></script>
+    <script src="~/assets/static/js/bootstrap-pincode-input.js"></script>
+    <!-- ================== END PAGE LEVEL JS ================== -->
+    <script>
+        $(document).ready(function () {
+        App.init();
+
+        // pincode widget over the password field (4 digits, hidden)
+        $('#password').pincodeInput({ hidedigits: true, inputs: 4 });
+
+        // mirror the pincode value into the hidden Otp field on submit
+        $('#otpForm').on('submit', function () {
+            $('#otpHidden').val($('#password').val());
+        });
+
+        // Auto-submit when all 4 digits are entered
+        $(document).on('keyup input', '.pincode-input-text', function () {
+            var boxes  = $('.pincode-input-text');
+            var filled = true;
+            // Must be an actual digit (0-9), not a placeholder character
+            boxes.each(function () { if (!/^\d$/.test($(this).val())) filled = false; });
+            if (filled) {
+                setTimeout(function () {
+                    var otp = '';
+                    $('.pincode-input-text').each(function () { otp += $(this).val(); });
+                    $('#otpHidden').val(otp);
+                    BlockUI();
+                    $('#otpForm').submit();
+                }, 100);
+            }
+        });
+
+        // Countdown — ViewBag.EndDate is "dd-MM-yyyy HH:mm:ss". If absent, default 3 min.
+        var dt = '@(ViewBag.EndDate ?? "")';
+        var end;
+        if (dt && dt.indexOf('-') > -1) {
+        var dateAr = dt.split('-');
+        end = new Date(dateAr[1] + '/' + dateAr[0] + '/' + dateAr[2]);
+        } else {
+        end = new Date(new Date().getTime() + 3 * 60 * 1000);
+        }
+
+        var _second = 1000, _minute = _second * 60, _hour = _minute * 60, _day = _hour * 24, timer;
+        function twoDigits(n) { return (n <= 9 ? "0" + n : n); }
+        function showRemaining() {
+        var now = new Date();
+        var distance = end - now;
+        if (distance < 0) {
+        clearInterval(timer);
+        document.getElementById("reset").style.display = "block";
+        document.getElementById('countdown').innerHTML = "OTP expired";
+        return;
+        }
+        var hours = Math.floor((distance % _day) / _hour);
+        var minutes = Math.floor((distance % _hour) / _minute);
+        var seconds = Math.floor((distance % _minute) / _second);
+        document.getElementById('countdown').innerHTML =
+        (hours ? hours + ':' + twoDigits(minutes) : minutes) + ':' + twoDigits(seconds);
+        }
+        timer = setInterval(showRemaining, 1000);
+        });
+
+        $('#login').click(function () { $('#otpHidden').val($('#password').val()); BlockUI(); });
+        $('#reset').click(function () { BlockUI(); });
+
+        function BlockUI() { $.blockUI({ message: '<h4><img src="/assets/static/img/loading1.gif" /> Please wait...</h4>' }); }
+        function UnblockUI() { $.unblockUI(); }
+    </script>
+</body>
+</html>
